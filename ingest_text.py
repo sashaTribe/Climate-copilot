@@ -3,11 +3,13 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import pinecone
 from langchain.chat_models import ChatOpenAI
-from bs4 import BeautifulSoup
+
 import pprint
 import pinecone
 import os
 
+
+"""
 if os.path.exists("env.py"):
     import env
 
@@ -22,3 +24,5 @@ docs = loader.load()
 
 def grab_corpus(url,schema):
     loader = Async
+"""
+
