@@ -1,4 +1,5 @@
-from langchain.document_loaders import AsyncHtmlLoader
+from langchain.document_loaders import AsyncChromiumLoader
+from langchain.document_transformers import BeautifulSoupTransformer
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import pinecone
@@ -26,3 +27,12 @@ def grab_corpus(url,schema):
     loader = Async
 """
 
+def grab_corpus(url):
+    loader = AsyncChromiumLoader(url)
+    html = loader.load()
+
+    bs_transformer = BeautifulSoupTransformer()
+    docs_transformed = bs_transformer.transform_documents(html, tags_to_extract=["a"])
+    docs_transformed[0].page_content[0:500]
+
+grab_corpus("https://www.theccc.org.uk/publications/")

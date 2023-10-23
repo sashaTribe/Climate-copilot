@@ -1,21 +1,20 @@
 from bs4 import BeautifulSoup
 import requests
+#from pyPDF2 import PdfFileReader
 
 url = "https://www.theccc.org.uk/publications/"
+
 response = requests.get(url)
-soup = BeautifulSoup(response.text, 'html.parser')
-links = soup.find_all('a')
-i = 0
+html = response.text
+soup = BeautifulSoup(html, 'html.parser')
+pdf_links = [a['href'] for a in soup.find_all('a', href=True) if a['href'].endswith('.pdf')]
 
-for link in links:
-    if ('.pdf' in link.get('href', [])):
-        i += 1
-        print("Downloading File: ", i)
-
-        response = requests.get(link.get('href'))
-        pdf = open("pdf"+str(i)+".pdf",'wb')
-        pdf.write(response.content)
-        pdf.close()
-        print("File ",i," downloaded")
+for pdf_link in pdf_links:
+    pdf_url = url + pdf_link if not pdf_link.startswith('http') else pdf_link
+    pdf_response = requests.get(pdf_url)
+    with open(pdf_link.split("/")[-1], 'wb') as pdf_file:
+        print("Writing to file....")
+        pdf_file.write(pdf_response.content)
 
 print("All files downloaded")
+
