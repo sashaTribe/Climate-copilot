@@ -5,3 +5,9 @@ from langchain.vectorstores import pinecone
 import pinecone
 import os
 
+if os.path.exists("env.py"):
+    import env
+
+pinecone.init(api_key=os.environ("PINECONE_SECRET_KEY"),
+              environment=os.environ.get("PINECONE_ENVIRONMENT_REGION"))
+
