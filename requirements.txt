@@ -1,0 +1,7 @@
+langchain
+pinecone-client
+bs4
+requests
+tiktoken
+openai
+wikipedia
