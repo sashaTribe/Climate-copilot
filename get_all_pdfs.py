@@ -4,6 +4,10 @@ from PyPDF2 import PdfReader
 url = 'https://www.theccc.org.uk/publications/'
 import csv
 
+def create_web_reader(url):
+    read = requests.get(url)
+    html_content = read.content
+    return html_content
 
 def all_report_links(url):
     read = requests.get(url)
