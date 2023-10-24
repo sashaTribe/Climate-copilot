@@ -39,12 +39,6 @@ def get_pdf(pdf):
         list_of_pdf.add(pdf_link)
     return list_of_pdf
 
-"""
-list_of_links = get_tag_a('https://www.theccc.org.uk/publications/')
-for link in list_of_links:
-    print("First batch of links")
-    temp_list = (get_pdf(link))
-"""
 
     
 def put_pdfs_in_file(pdf_list):
@@ -64,22 +58,3 @@ def main():
 
 main()
 
-"""
-def info_path(given_pdf):
-    response = requests.get(given_pdf)
-    r = requests.get(given_pdf)
-    f = io.BytesIO(r.content)
-
-    try: 
-
-        loader = PyPDFLoader(given_pdf)
-        pages = loader.load_and_split()
-        print(pages[0])
-    except ValueError:
-        print("Unable to load PDF")
-     
-   
-
-for pdf in list_of_pdf:
-    info_path(pdf)
-"""
