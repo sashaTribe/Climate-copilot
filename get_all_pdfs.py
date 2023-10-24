@@ -5,39 +5,38 @@ url = 'https://www.theccc.org.uk/publications/'
 import csv
 
 
-def get_tag_a(url):
+def all_report_links(url):
     read = requests.get(url)
     html_content = read.content
     soup = BeautifulSoup(html_content, "html.parser")
     list_of_links = []
-    a = soup.find_all('a')
-    for link in a:
-        list_of_links.append((link.get('href')))
+    links = soup.find_all('a', {'class': 'wp-block-button__link'})
+    for link in links:
+        temp = link.get("href")
+        list_of_links.append(temp)
     return list_of_links
 
+print(all_report_links(url))
 
-def get_pdf(pdf):
+def get_report_link(given_link):
+    read = requests.get(given_link)
+    html_content = read.content
+    soup = BeautifulSoup(html_content, "html.parser")
+    links = soup.find('a').get('href')
+    links = soup.find_all('a', {'class': 'post-title__link'})
+    list_of_links = []
+    for link in links:
+        temp = link.get("href")
+        list_of_links.append(temp)
+    return list_of_links
+
+def get_pdf(url):
 
     read = requests.get(url)
     html_content = read.content
     soup = BeautifulSoup(html_content, "html.parser")
-    d = soup.find_all('div')
-    a = soup.find_all('a')
-    list_of_pdf = set()
-    for link in a:
-        #print("links: ", link.get('href'))
-        #print("\n")
-        
-        # converting the extension from .html to .pdf
-        pdf_link = (link.get('href')[:-5]) + ".pdf"
-        
-        # converted to .pdf
-        print("converted pdf links: ", pdf_link)
-        print("\n")
-        
-        # added all the pdf links to set
-        list_of_pdf.add(pdf_link)
-    return list_of_pdf
+    link = soup.find_all('a', {'class': 'wp-block-button_link is-align-left'})
+    return link
 
 
     
@@ -56,5 +55,5 @@ def main():
         temp_list = (get_pdf(link))
         put_pdfs_in_file(temp_list)
 
-main()
+#main()
 

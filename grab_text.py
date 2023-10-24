@@ -1,29 +1,14 @@
 import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+import bs4
+import csv
+import PyPDF2
+import io 
 
-# Define the URL of the webpage containing the links to the PDFs
-url = 'https://www.theccc.org.uk/publications/'
-
-response = requests.get(url)
-content = BeautifulSoup(response.text, 'html.parser')
-all_urls = [content.find_all('a')]
-i=0
-for url in all_urls:
-    new_content = BeautifulSoup(response.text, 'html.parser')
-    inner_urls = [new_content.find_all('a')]
-    for pdf_url in inner_urls:
-        if ('.pdf' in pdf_url):
-            i += 1
-            print("Downloading file: ", i)
+def extract_text(pdf_link):
+    response = requests.get(pdf_link)
+    f = io.BytesIO(response.content)
+    reader = PyPDF2.PdfReader(f)
     
-            # Get response object for link
-            response = requests.get(pdf_url)
-    
-            # Write content in pdf file
-            pdf = open("pdf"+str(i)+".pdf", 'wb')
-            pdf.write(response.content)
-            pdf.close()
-            print("File ", i, " downloaded")
-print("All files downloaded")
+    print(reader.pages[2].extract_text().split('\n'))
 
+extract_text("https://www.theccc.org.uk/wp-content/uploads/2023/09/230925-PF-MN-ZEV-Mandate-Response.pdf")
