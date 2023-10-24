@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from PyPDF2 import PdfReader
-url = "https://www.theccc.org.uk/publication/the-implications-of-behavioural-science-for-effective-climate-policy-cast/"
+url = 'https://www.theccc.org.uk/publications/'
 import csv
 
 
@@ -37,6 +37,7 @@ def get_pdf(pdf):
         
         # added all the pdf links to set
         list_of_pdf.add(pdf_link)
+    return list_of_pdf
 
 """
 list_of_links = get_tag_a('https://www.theccc.org.uk/publications/')
@@ -51,6 +52,15 @@ def put_pdfs_in_file(pdf_list):
         for pdf in pdf_list:
             f.write(pdf)
             f.write('\n')
+
+
+def main():
+    list_of_links = get_tag_a('https://www.theccc.org.uk/publications/')
+    for link in list_of_links:
+        temp_list = (get_pdf(link))
+        put_pdfs_in_file(temp_list)
+
+main()
 
 """
 def info_path(given_pdf):
