@@ -48,10 +48,12 @@ for link in list_of_links:
 
     
 def put_pdfs_in_file(pdf_list):
-    with open('pdf_list', 'w') as f:
+    with open('pdf_list.txt', 'w') as f:
         for pdf in pdf_list:
-            f.write(pdf)
-            f.write('\n')
+            if pdf != '.pdf':
+                f.write(pdf)
+                f.write('\n')
+        
 
 
 def main():
