@@ -1,0 +1,73 @@
+import requests
+from bs4 import BeautifulSoup
+from PyPDF2 import PdfReader
+url = "https://www.theccc.org.uk/publication/the-implications-of-behavioural-science-for-effective-climate-policy-cast/"
+import csv
+
+
+def get_tag_a(url):
+    read = requests.get(url)
+    html_content = read.content
+    soup = BeautifulSoup(html_content, "html.parser")
+    list_of_links = []
+    a = soup.find_all('a')
+    for link in a:
+        list_of_links.append((link.get('href')))
+    return list_of_links
+
+
+def get_pdf(pdf):
+
+    read = requests.get(url)
+    html_content = read.content
+    soup = BeautifulSoup(html_content, "html.parser")
+    d = soup.find_all('div')
+    a = soup.find_all('a')
+    list_of_pdf = set()
+    for link in a:
+        #print("links: ", link.get('href'))
+        #print("\n")
+        
+        # converting the extension from .html to .pdf
+        pdf_link = (link.get('href')[:-5]) + ".pdf"
+        
+        # converted to .pdf
+        print("converted pdf links: ", pdf_link)
+        print("\n")
+        
+        # added all the pdf links to set
+        list_of_pdf.add(pdf_link)
+
+"""
+list_of_links = get_tag_a('https://www.theccc.org.uk/publications/')
+for link in list_of_links:
+    print("First batch of links")
+    temp_list = (get_pdf(link))
+"""
+
+    
+def put_pdfs_in_file(pdf_list):
+    with open('pdf_list', 'w') as f:
+        for pdf in pdf_list:
+            f.write(pdf)
+            f.write('\n')
+
+"""
+def info_path(given_pdf):
+    response = requests.get(given_pdf)
+    r = requests.get(given_pdf)
+    f = io.BytesIO(r.content)
+
+    try: 
+
+        loader = PyPDFLoader(given_pdf)
+        pages = loader.load_and_split()
+        print(pages[0])
+    except ValueError:
+        print("Unable to load PDF")
+     
+   
+
+for pdf in list_of_pdf:
+    info_path(pdf)
+"""
