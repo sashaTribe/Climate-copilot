@@ -13,6 +13,28 @@ from langchain.vectorstores import Pinecone
 
 if os.path.exists("env.py"):
     import env
+
+def download_pdfs(pdf_files):
+    i = 0
+    for pdf in pdf_files:
+        print("Downloading file: ", i)
+ 
+        # Get response object for link
+        response = requests.get(pdf.get('href'))
+ 
+        # Write content in pdf file
+        pdf = open(os.path.join(output_folder+"pdf")+str(i)+".pdf", 'wb')
+        pdf.write(response.content)
+        pdf.close()
+        print("File ", i, " downloaded")
+        i+=1
+ 
+
+
+
+
+
+
 pinecone.init(api_key=os.environ.get("PINECONE_SECRET_KEY"),
               environment=os.environ.get("PINECONE_ENVIRONMENT_REGION"))
 active_indexes = pinecone.list_indexes()
