@@ -56,15 +56,6 @@ def put_together():
             if pdf != None:
                 pdf_links.append(pdf)
     return pdf_links
-"""
- test_list, test_list_two = put_together(url)
-#my_list = [x for x in test_list if x != None]
-my_list_two = [x for x in test_list_two if x != None]
-#print(len(my_list))
-print(len(my_list_two))
-print(my_list_two[0])
- """   
-
 
 def put_pdfs_in_file(pdf_list):
     with open('pdf_list.txt', 'w') as f:
