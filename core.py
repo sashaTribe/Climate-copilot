@@ -24,13 +24,15 @@ def run_llm(pinecone_env):
     chat_model = ChatOpenAI(openai_api_key=os.environ.get("OPENAI_API_KEY"))
     qa = ConversationalRetrievalChain.from_llm(llm = chat_model, 
                                             retriever=doc_search.as_retriever())
-    chat_log = []
+    chat_history = []
     print("Hi and welcome to the climate change chatbot!!!")
     while True:
-        user_input = input("Welcome! Ask me anything about Climate Change, or press 'Esc' if you want to exit: ")
-        if keyboard.is_pressed('Esc'):
+        user_input = input("Welcome! Ask me anything about Climate Change, or type 'quit' if you want to exit: ")
+        if user_input == 'quit':
             print("See you Soon!")
             break
-        response = qa({"question": user_input, "chat_history":chat_log})
+        if user_input == '':
+            print("Sorry that is an invalid input, please try again")
+        response = qa({"question": user_input, "chat_history":chat_history})
         print(f"Response: {response.get('answer')}")
-        chat_log.append((user_input,response))
+        chat_history.append((user_input,response['answer']))
