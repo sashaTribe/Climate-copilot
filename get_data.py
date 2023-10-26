@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
-import requests
+import os
 #from pyPDF2 import PdfFileReader
 
+"""
 url = "https://www.theccc.org.uk/publications/"
 
 response = requests.get(url)
@@ -18,3 +19,9 @@ for pdf_link in pdf_links:
 
 print("All files downloaded")
 
+
+"""
+path = 'pdfs/'
+pdf_files = [f for f in os.listdir(path) if f.endswith('.pdf')]
+
+print(len(pdf_files))

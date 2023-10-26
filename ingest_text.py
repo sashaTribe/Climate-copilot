@@ -1,74 +1,108 @@
-from langchain.document_loaders import AsyncChromiumLoader
-from langchain.document_transformers import BeautifulSoupTransformer
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import pinecone
-from langchain.chat_models import ChatOpenAI
-from playwright.async_api import async_playwright
-from langchain.chains import create_extraction_chain
-from bs4 import BeautifulSoup
-import pprint
-import pinecone
+import requests
+import PyPDF2
+import io 
 import os
-
+import fitz
+from langchain.document_loaders import PyPDFLoader
+from langchain.vectorstores import FAISS
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+import pinecone
+from langchain.vectorstores import Pinecone
 if os.path.exists("env.py"):
     import env
-"""
-if os.path.exists("env.py"):
-    import env
 
-pinecone.init(api_key=os.environ("PINECONE_SECRET_KEY"),
+
+    
+
+pinecone.init(api_key=os.environ.get("PINECONE_SECRET_KEY"),
               environment=os.environ.get("PINECONE_ENVIRONMENT_REGION"))
+active_indexes = pinecone.list_indexes()
+index = pinecone.Index('climate-change')
 
-llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
-url = "https://www.theccc.org.uk/publications/"
-loader = AsyncHtmlLoader(url)
-docs = loader.load()
+def get_all_pdfs(pdf_list_file):
+    pdf_link_list = []
+    with open(pdf_list_file, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            pdf_link_list.append(line)
+    return pdf_link_list
 
 
-def grab_corpus(url,schema):
-    loader = Async
+
+def extract_text_from_pdf(pdf_path):
+    text = ""
+    with PyPDF2.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text()
+    return text
+
+def load_pdf(pdf):
+    print(pdf)
+    loader = PyPDFLoader(pdf)
+    pages = loader.load_and_split()
+    return pages
+
+def extract_text(page):
+    text = ""
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size = 250,
+        chunk_overlap = 50,
+        separators =["\n\n", "\n", "",""]
+    )
+    document = text_splitter.split_documents(page)
+    embedding = OpenAIEmbeddings(open_ai_key = os.environ.get("OPEN_AI_KEY"))
+    Pinecone.from_documents(documents = document, embedding=embedding, index_name='climate-change')
+    print("Successful upload")
+
+def upload_pdf():
+    path = 'pdfs/'
+    #pdf_files = [f for f in os.listdir(path) if f.endswith('.pdf')]
+    pdf_files = []
+    for file in os.listdir(path):
+        if os.path.isfile(os.path.join(path, file)):
+            pdf_files.append(os.path.join(path, file))
+    print(len(pdf_files))
+    print(pdf_files[0])
+    for pdf in pdf_files:
+        pages = load_pdf(pdf)
+        extract_text(pages)
+#text = load_pdf("https://www.theccc.org.uk/about/car.pdf")
+#extract_text(text)
+
+
+
+"""
+def load_pdfs_to_loader(pdf_list):
+    list_of_pages = []
+
+    for pdf in pdf_list:
+        try:
+            list_of_pages.append(load_pdf(pdf))
+        except ValueError:
+            pass
+    print(len(list_of_pages))
+    print(len(list_of_pages[0]))
+    return list_of_pages
+
+
+def main():
+    list_of_pdf_links = get_all_pdfs('pdf_list.txt')
+    list_of_pages = load_pdfs_to_loader(list_of_pdf_links)
+    #page = load_pdf("https://www.theccc.org.uk/wp-content/uploads/2023/09/230925-PF-MN-ZEV-Mandate-Response.pdf")
+    return len(list_of_pages)
+    
+    faiss_index = FAISS.from_documents(page, OpenAIEmbeddings())
+    docs = faiss_index.similarity_search("Climate? ", k=2)
+    for doc in docs:
+        print(str(doc.metadata["page"]) + ":", doc.page_content[:300])
+    
+    
+
+main()
+#extract_text("https://www.theccc.org.uk/wp-content/uploads/2021/10/Independent-Assessment-of-the-UK-Net-Zero-Strategy-CCC.pdf")
+
 """
 
-def grab_corpus(url):
-    loader = AsyncChromiumLoader(url)
-    html = loader.load()
-    llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613",openai_api_key=os.environ.get("OPEN_AI_KEY"))
-    bs_transformer = BeautifulSoupTransformer()
-    docs_transformed = bs_transformer.transform_documents(html, tags_to_extract=["a"])
-    docs_transformed[0].page_content[0:500]
-
-#grab_corpus("https://www.theccc.org.uk/publications/")
-
-schema = {
-    "Properties" : {
-        "content" : {"type" : "string"},
-    },
-    "required": ["content"],
-}
-llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
-def extract(content: str, schema: dict):
-    return create_extraction_chain(schema=schema, llm=llm).run(content)
-
-def scrape_with_playwright(urls, schema):
-    
-    loader = AsyncChromiumLoader(urls)
-    docs = loader.load()
-    bs_transformer = BeautifulSoupTransformer()
-    docs_transformed = bs_transformer.transform_documents(docs,tags_to_extract=["a"])
-    print("Extracting content with LLM")
-    
-    # Grab the first 1000 tokens of the site
-    splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(chunk_size=1000, 
-                                                                    chunk_overlap=0)
-    splits = splitter.split_documents(docs_transformed)
-    
-    # Process the first split 
-    extracted_content = extract(
-        schema=schema, content=splits[0].page_content
-    )
-    pprint.pprint(extracted_content)
-    return extracted_content
-
-urls = ["https://www.theccc.org.uk/publications/"]
-extracted_content = scrape_with_playwright(urls, schema=schema)
+if __name__ == "__main__":
+    upload_pdf()

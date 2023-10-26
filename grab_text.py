@@ -2,7 +2,6 @@ import requests
 import PyPDF2
 import io 
 import os
-output_folder = "pdfs/"
 import fitz
 from langchain.document_loaders import PyPDFLoader
 from langchain.vectorstores import FAISS
@@ -14,26 +13,8 @@ from langchain.vectorstores import Pinecone
 if os.path.exists("env.py"):
     import env
 
-def download_pdfs(pdf_files):
-    i = 0
-    for pdf in pdf_files:
-        print("Downloading file: ", i)
- 
-        # Get response object for link
-        response = requests.get(pdf.get('href'))
- 
-        # Write content in pdf file
-        pdf = open(os.path.join(output_folder+"pdf")+str(i)+".pdf", 'wb')
-        pdf.write(response.content)
-        pdf.close()
-        print("File ", i, " downloaded")
-        i+=1
- 
 
-
-
-
-
+    
 
 pinecone.init(api_key=os.environ.get("PINECONE_SECRET_KEY"),
               environment=os.environ.get("PINECONE_ENVIRONMENT_REGION"))
@@ -66,13 +47,18 @@ def extract_text(page):
     Pinecone.from_documents(documents = document, embedding=embedding, index_name='climate-change')
     print("Successful upload")
 
-
+def upload_pdf():
+    path = 'pdfs/'
+    pdf_files = [f for f in os.listdir(path) if f.endswith('.pdf')]
+    for pdf in pdf_files:
+        pages = load_pdf(pdf)
+        extract_text(pages)
 #text = load_pdf("https://www.theccc.org.uk/about/car.pdf")
 #extract_text(text)
 
 
 
-
+"""
 def load_pdfs_to_loader(pdf_list):
     list_of_pages = []
 
@@ -91,16 +77,18 @@ def main():
     list_of_pages = load_pdfs_to_loader(list_of_pdf_links)
     #page = load_pdf("https://www.theccc.org.uk/wp-content/uploads/2023/09/230925-PF-MN-ZEV-Mandate-Response.pdf")
     return len(list_of_pages)
-    """
+    
     faiss_index = FAISS.from_documents(page, OpenAIEmbeddings())
     docs = faiss_index.similarity_search("Climate? ", k=2)
     for doc in docs:
         print(str(doc.metadata["page"]) + ":", doc.page_content[:300])
-    """
+    
     
 
 main()
 #extract_text("https://www.theccc.org.uk/wp-content/uploads/2021/10/Independent-Assessment-of-the-UK-Net-Zero-Strategy-CCC.pdf")
 
+"""
+
 if __name__ == "__main__":
-    main()
+    upload_pdf()
