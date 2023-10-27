@@ -16,39 +16,6 @@ active_indexes = pinecone.list_indexes()
 # gets index of the client you are submitting embeddings to
 index = pinecone.Index('climate-change')
 
-"""
-reads all the pdf links from the given file
-
-parameters:
-- pdf_list_file --> the file name of all the pdf links stored
-
-return:
-- pdf_link_list --> a list containing string objects (pdf web links)
-"""
-def get_all_pdfs(pdf_list_file):
-    pdf_link_list = []
-    with open(pdf_list_file, 'r') as f:
-        lines = f.readlines()
-        for line in lines:
-            pdf_link_list.append(line)
-    return pdf_link_list
-
-
-"""
-Extracts text data from the given pdf 
-
-parameters:
-- pdf_path --> type str containing the path of the pdf
-
-returns:
-- text --> a big string of text 
-"""
-def extract_text_from_pdf(pdf_path):
-    text = ""
-    with PyPDF2.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            text += page.extract_text()
-    return text
 
 """
 loads and splits data using Langchain

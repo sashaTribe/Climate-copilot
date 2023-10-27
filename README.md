@@ -4,23 +4,105 @@ This project saves the user the effort to go through all the reports to find inf
 ### The link that holds all of the reports:
 https://www.theccc.org.uk/publications/
 
-## Technologies I have used:
+## Built with
+- ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+- ![ChatGPT](https://img.shields.io/badge/chatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
+- ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+- ![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)
+- ![Windows Terminal](https://img.shields.io/badge/Windows%20Terminal-%234D4D4D.svg?style=for-the-badge&logo=windows-terminal&logoColor=white)
+
 - Langchain: 
-    - I have used Langchain to tokenize and make embeddings of the text that is being processed 
-    - It holds sentimental analysis
-- Pinecone
-    - Pinecone holds all the vectors of the processed PDFs, it is easy to grab data from after the user's query
+    https://python.langchain.com/docs/get_started/introduction
+- Pinecone: https://www.pinecone.io/
 - requests
     - Important for web scraping
 - OpenAI
     - a tool that powers my LLM model
 - BeautifulSoup
     - Makes it easier for me to find pdf links of a given website
-
-
+- 
 ## What has been challenging for me:
 - Finding the best way to grab the text inside of the PDF reports
 - Trying to get Streamlit to work however it has been unsuccessful with my computer as the technologies I use is incompatible to streamlit
 
 ## The Code Section
 
+### Downloading the PDFs
+
+First I had to use *BeautifulSoup* to web scrape the PDFs from the website given.
+
+## How to Run This application
+1. Get a free API Key from https://openai.com/
+2. Run this in your terminal:
+```console
+python main.py
+```
+
+
+## Process
+### Downloading PDFs
+
+1. First I scrape the pdf links from the given website using BeautifulSoup and Requests library:
+
+```python
+import requests
+from bs4 import BeautifulSoup
+```
+2. Made a function that gets all the links that contains reports
+    - Please see [all_report_links(url)](/get_all_pdfs.py::allreportlinks)
+3. Get report links from all pages
+    - [get_report_links](/get_all_pdfs.py::get_report_links)
+4. Fetch the pdf url from every page of the specific report
+    - [get_pdf](/get_all_pdfs.py::get_pdf)
+5. Make a list of all the pdf urls, calling the functions above:
+    - [put_together](/get_all_pdfs.py::put_together)
+6. Convert the list into a file that contains all the pdf links
+    - [put_pdfs_in_file](/get_all_pdfs.py::put_pdfs_in_file)
+7. Create main() which triggers all the processes above:
+    - [main](/get_all_pdfs.py:main)
+
+### Download all the PDFs
+1. import OS and Requests
+    ```python
+    import requests
+    import os
+    ```
+2. Made a function that downloads pdf based on given url
+    - [download_link](/download_pdf.py::download_link)
+3. A function that calls the above for every link given in the file
+    - [download_all_links](/download_pdf.py::download_all_links)
+
+### Ingest text
+1. Import Langchain methods needed, OpenAI for embeddings, and pinecone to set up client (where all the data are stored to be fetched later)
+```python
+import PyPDF2
+import os
+from langchain.document_loaders import PyPDFLoader
+from langchain.vectorstores import FAISS
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+import pinecone
+from langchain.vectorstores import Pinecone
+if os.path.exists("env.py"):
+    import env
+```
+2. Initiate the pinecone-client, this first gets set up in its webstie where you create and *index* which acts as a folder to store your tokens at
+```python
+# initialises pinecone client 
+pinecone.init(api_key=os.environ.get("PINECONE_SECRET_KEY"),
+              environment=os.environ.get("PINECONE_ENVIRONMENT_REGION"))
+active_indexes = pinecone.list_indexes()
+# gets index of the client you are submitting embeddings to
+index = pinecone.Index('climate-change')
+
+```
+3. Load the PDFs into langchain's loader in preparation for tokenization and embeddings
+- [load_pdf](/ingest_text.py::load_pdf)
+
+4. Extract the text given to split the text into tokens with sizes of 250 characters, having a 50 character overlap to improve sentimental analysis
+- [extract_text](/ingest_text.py::extract_text)
+
+5. Upload every PDF document to the pinecone client, calling the functions above for preprocessing
+- [upload_pdf](/ingest_text.py::upload_pdf)
+
+### Create the chatbot
