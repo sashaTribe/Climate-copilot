@@ -53,8 +53,7 @@ python main.py
 Should be able to communicate with the chatbot like this:
 ![chatbot in terminal](chatbot.png)
 
-Watch the demo here!!
-[<video src="chatbot_demo.mp4" controls title="Title"></video>]
+Watch the demo clicking here: [Chatbot Demo](/chatbot_demo.mp4)
 
 ## The Code Section
 ### Fetching the PDFs
