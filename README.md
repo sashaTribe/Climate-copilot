@@ -155,6 +155,7 @@ if __name__ == "__main__":
     - So I resulted in downloading all of them, saving them to [pdfs](/pdfs/) instead
 
 - Trying to get Streamlit to work however it has been unsuccessful with my computer as the technologies I use is incompatible to streamlit
+- The API used for OpenAI does not last long, meaning I was not able to upload all 377 pdfs
 
 ## The Future State of this Application
 - Implementing a GUI to make the prompt more user-friendly
