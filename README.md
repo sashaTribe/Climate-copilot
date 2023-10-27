@@ -54,7 +54,7 @@ Should be able to communicate with the chatbot like this:
 ![chatbot in terminal](chatbot.png)
 
 Watch the demo here!!
-<video src="chatbot_demo.mp4" controls title="Title"></video>
+[<video src="chatbot_demo.mp4" controls title="Title"></video>]
 
 ## The Code Section
 ### Fetching the PDFs
