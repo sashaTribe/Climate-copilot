@@ -2,6 +2,9 @@
 Welcome to my Readme for my climate change chatbot!!!
 
 Author: Alexandra Marie Tribe
+#### Notes:
+- Ignore [grab_text](/grab_text.py), that is strictly for me and was a draft for the [ingest_text.py](/ingest_text.py)
+
 ## Table of Contents :)
 - [Description](#description)
 - [Technologies Used](#built-with)
