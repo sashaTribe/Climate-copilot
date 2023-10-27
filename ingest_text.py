@@ -67,16 +67,20 @@ extracts text from given pages
 - page --> list of string objects
 """
 def extract_text(page):
-    text = ""
+    
+    # splits text into 250 characters with 50 character overlap
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size = 250,
         chunk_overlap = 50,
         separators =["\n\n", "\n", "",""]
     )
+
     # splits the pages up into smaller texts
     document = text_splitter.split_documents(page)
+
     # creates embedding tool from openai 
     embedding = OpenAIEmbeddings(open_ai_key = os.environ.get("OPEN_AI_KEY"))
+
     # processes the documents, creating embeddings for each document and upload them to
     # pinecone client called 'climate-change'
     Pinecone.from_documents(documents = document, embedding=embedding, index_name='climate-change')

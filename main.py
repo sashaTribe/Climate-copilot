@@ -10,3 +10,11 @@ if __name__ == "__main__":
 
 
 
+# QUESTIONS TO SHOWCASE:
+"""
+- How successful are the UK Government in implementing their plans for net zero by 2050?
+- What industrial or economic barriers are there in tackling climate change?
+- Are households being provided the opportunity and resources necessary to tackle climate change in a 
+meaningful way?
+- what is meant by ULEZ?
+"""
