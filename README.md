@@ -1,4 +1,23 @@
 # Climate-Copilot
+Welcome to my Readme for my climate change chatbot!!!
+
+Author: Alexandra Marie Tribe
+## Table of Contents :)
+- [Description](#description)
+- [Technologies Used](#built-with)
+- [How to run the application](#how-to-run-this-application)
+- [The code section](#the-code-section)
+    - [Fetching the PDF links](#fetching-the-pdfs)
+    - [Downloading the Report PDFs](#download-all-the-pdfs)
+    - [Preparing the LLM](#ingest-text)
+    - [Creating the Chatbot](#create-the-chatbot)
+    - [The Trigger File](#the-main-python-file-that-triggers-the-applet)
+- [Challenges Faced](#what-has-been-challenging-for-me)
+- [The Future State of this Product](#the-future-state-of-this-application)
+- [Acknowledgements](#acknowledgments)
+
+
+## Description 
 An LLM that processes a corpus of climate change documents to the pinecone server, including a prompt for users to make queries relating to climate change environment. 
 This project saves the user the effort to go through all the reports to find information of a particular subject by providing a prompt for them to type in their query and the LLM produces an answer.
 ### The link that holds all of the reports:
@@ -6,7 +25,6 @@ https://www.theccc.org.uk/publications/
 
 ## Built with
 - ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-- ![ChatGPT](https://img.shields.io/badge/chatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
 - ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 - ![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)
 - ![Windows Terminal](https://img.shields.io/badge/Windows%20Terminal-%234D4D4D.svg?style=for-the-badge&logo=windows-terminal&logoColor=white)
@@ -17,30 +35,24 @@ https://www.theccc.org.uk/publications/
 - requests
     - Important for web scraping
 - OpenAI
-    - a tool that powers my LLM model
+    - a tool that powers my LLM model, powers ![ChatGPT](https://img.shields.io/badge/chatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
 - BeautifulSoup
     - Makes it easier for me to find pdf links of a given website
-- 
-## What has been challenging for me:
-- Finding the best way to grab the text inside of the PDF reports
-- Trying to get Streamlit to work however it has been unsuccessful with my computer as the technologies I use is incompatible to streamlit
 
-## The Code Section
-
-### Downloading the PDFs
-
-First I had to use *BeautifulSoup* to web scrape the PDFs from the website given.
 
 ## How to Run This application
 1. Get a free API Key from https://openai.com/
+    - have it put in a local env file for security purposes
 2. Run this in your terminal:
 ```console
 python main.py
 ```
+Should be able to communicate with the chatbot like this:
+![chatbot in terminal](chatbot.png)
 
 
-## Process
-### Downloading PDFs
+## The Code Section
+### Fetching the PDFs
 
 1. First I scrape the pdf links from the given website using BeautifulSoup and Requests library:
 
@@ -106,3 +118,43 @@ index = pinecone.Index('climate-change')
 - [upload_pdf](/ingest_text.py::upload_pdf)
 
 ### Create the chatbot
+1. Import Langchain methods needed, OpenAI and pinecone to fetch the LLM and to create a prompt for user to communicate with the LLM
+```python
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.vectorstores import Pinecone 
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationalRetrievalChain
+import pinecone
+import os
+```
+2. Build a langchain Agent that the user will communicate with 
+    - [run_llm](/core.py::run_llm)
+
+### The Main Python File that triggers the applet
+Fetches the [run_llm](/core.py::run_llm) from the [core.py](/core.py) file
+```python 
+from core import run_llm
+from dataclasses import dataclass
+import os
+if os.path.exists("env.py"):
+    import env
+
+# Runs the whole program
+if __name__ == "__main__":
+    run_llm(os.environ.get("PINECONE_ENVIRONMENT_REGION"))
+
+```
+
+## What has been challenging for me:
+- Finding the best way to grab the text inside of the PDF reports
+    - Tried to get Langchain to fetch data straight from the url link instead of downloading all the files
+    - So I resulted in downloading all of them, saving them to [pdfs](/pdfs/) instead
+
+- Trying to get Streamlit to work however it has been unsuccessful with my computer as the technologies I use is incompatible to streamlit
+
+## The Future State of this Application
+- Implementing a GUI to make the prompt more user-friendly
+    - Ideally it will have a similar interface to a chat like whatsapp application for example 
+
+## Acknowledgments
+I thank the Xander team and my peers in the academy for the support of building this application.
