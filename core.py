@@ -5,6 +5,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
 import pinecone
 import os
+import streamlit as st
 
 # Imports env file for api key access
 if os.path.exists('env.py'):
@@ -17,6 +18,7 @@ Parameters:
 """
 def run_llm(pinecone_env):
     # initialises pinecone client 
+
     pinecone.init(api_key=os.environ.get("PINECONE_SECRET_KEY"),
               environment=os.environ.get("PINECONE_ENVIRONMENT_REGION"))
     
@@ -36,18 +38,23 @@ def run_llm(pinecone_env):
     qa = ConversationalRetrievalChain.from_llm(llm = chat_model, 
                                             retriever=doc_search.as_retriever())
     chat_history = []
-    print("Hi and welcome to the climate change chatbot!!!")
+    st.title("Climate Change Chatbot")
+    
+    st.text_area("Climate-Bot", "Hi and welcome to the climate change chatbot!!!")
     # code below runs until user wants to quit from prompt
     while True:
-        user_input = input("Welcome! Ask me anything about Climate Change, or type 'quit' if you want to exit: ")
-        if user_input == 'quit':
-            print("See you Soon!")
-            break
-        if user_input == '':
-            print("Sorry that is an invalid input, please try again")
-        # the answer gained from the query and chat history
-        response = qa({"question": user_input, "chat_history":chat_history})
-        # provides answer to user
-        print(f"Response: {response.get('answer')}")
-        # adds the query and answer to the log
-        chat_history.append((user_input,response['answer']))
+        #st.info(chat_model)
+        st.text_area("Climate-Bot", "Welcome! Ask me anything about Climate Change, or type 'quit' if you want to exit: ")
+        user_input = st.input()
+        if st.button("Send"):
+            if user_input == 'quit':
+                st.text_area("Climate-Bot", "See you Soon!", height=3)
+                break
+            if user_input == '':
+                st.text_area("Climate-Bot", "Sorry that is an invalid input, please try again", height=3)
+            # the answer gained from the query and chat history
+            response = qa({"question": user_input, "chat_history":chat_history})
+            # provides answer to user
+            st.text_area("Climate-Bot", value=response, height=100)
+            # adds the query and answer to the log
+            chat_history.append((user_input,response['answer']))
