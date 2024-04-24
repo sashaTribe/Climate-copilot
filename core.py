@@ -6,6 +6,7 @@ from langchain.chains import ConversationalRetrievalChain
 import pinecone
 import os
 import streamlit as st
+from streamlit_chat import message
 
 # Imports env file for api key access
 if os.path.exists('env.py'):
@@ -14,9 +15,9 @@ if os.path.exists('env.py'):
 """
 Creates an agent that answers user's query with a prompt on the terminal
 Parameters:
-- pinecone_env --> a string???
+- pinecone_env --> the environment name
 """
-def run_llm(pinecone_env):
+def run_llm():
     # initialises pinecone client 
 
     pinecone.init(api_key=os.environ.get("PINECONE_SECRET_KEY"),
@@ -35,26 +36,46 @@ def run_llm(pinecone_env):
     chat_model = ChatOpenAI(openai_api_key=os.environ.get("OPENAI_API_KEY"))
 
     # sets up agent and prompt with the LLM and the searcher (doc_search) to retrieve information
-    qa = ConversationalRetrievalChain.from_llm(llm = chat_model, 
+    chain = ConversationalRetrievalChain.from_llm(llm = chat_model, 
                                             retriever=doc_search.as_retriever())
-    chat_history = []
+    
+    def conversational_chat(query):
+        result = chain({"question": query, "chat_history": st.session_state['history']})
+        st.session_state['history'].append((query, result["answer"]))
+        return result["answer"]
+
+    # Initialize chat history
+    if 'history' not in st.session_state:
+        st.session_state['history'] = []
+
+    # Initialize messages
+    if 'generated' not in st.session_state:
+        st.session_state['generated'] = ["Hello ! Ask me about climate change 🤗"]
+
+    if 'past' not in st.session_state:
+        st.session_state['past'] = ["Hey ! 👋"]
+
     st.title("Climate Change Chatbot")
     
-    st.text_area("Climate-Bot", "Hi and welcome to the climate change chatbot!!!")
-    # code below runs until user wants to quit from prompt
-    while True:
-        #st.info(chat_model)
-        st.text_area("Climate-Bot", "Welcome! Ask me anything about Climate Change, or type 'quit' if you want to exit: ")
-        user_input = st.input()
-        if st.button("Send"):
-            if user_input == 'quit':
-                st.text_area("Climate-Bot", "See you Soon!", height=3)
-                break
-            if user_input == '':
-                st.text_area("Climate-Bot", "Sorry that is an invalid input, please try again", height=3)
-            # the answer gained from the query and chat history
-            response = qa({"question": user_input, "chat_history":chat_history})
-            # provides answer to user
-            st.text_area("Climate-Bot", value=response, height=100)
-            # adds the query and answer to the log
-            chat_history.append((user_input,response['answer']))
+    response_container = st.container()
+    container = st.container()
+
+    # User input form
+    with container:
+        with st.form(key='my_form', clear_on_submit=True):
+            user_input = st.text_input("Query:", placeholder="Ask a question about climate change", key='input')
+            submit_button = st.form_submit_button(label='Send')
+
+        if submit_button and user_input:
+            output = conversational_chat(user_input)
+            st.session_state['past'].append(user_input)
+            st.session_state['generated'].append(output)
+
+    # Display chat history
+    if st.session_state['generated']:
+        with response_container:
+            for i in range(len(st.session_state['generated'])):
+                message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="personas")
+                message(st.session_state["generated"][i], key=str(i), avatar_style="icons")
+
+    
